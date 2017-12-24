@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: ar.com.ml.examen.mutantes.MutantesApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 34.095 sec - in ar.com.ml.examen.mutantes.MutantesApplicationTests
