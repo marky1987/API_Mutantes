@@ -2,8 +2,11 @@ package ar.com.ml.examen.mutantes.model;
 
 import javax.persistence.*;
 
+/**
+ * Mapeo de la entidad Mutante
+ */
 @Entity
-@Table( name="mutante" )
+@Table(name = "mutante")
 public class Mutante {
 
     @Id
@@ -15,7 +18,8 @@ public class Mutante {
     @Column(name = "es_mutante")
     private boolean mutante;
 
-    public Mutante(){}
+    public Mutante() {
+    }
 
     public Mutante(int id_mutante, String dna, boolean mutante) {
         this.id_mutante = id_mutante;

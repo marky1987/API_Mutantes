@@ -5,6 +5,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,24 +14,26 @@ public class Validadores {
     private static final Logger LOG = LogManager.getLogger( Validadores.class );
 
     /**
-     * Metodo que retorna la respuesta del proceso isMutant
+     * Retorna la respuesta del proceso isMutant
      *
      * @param dna
      * @return ResponseEntity
      * @throws MutanteException
      */
-    public ResponseEntity respuesta( String[] dna) throws MutanteException {
+    public ResponseEntity respuesta(String[] dna) throws MutanteException {
         ResponseEntity response;
         String[] matrizFormateada;
-
+        Validadores validadores = new Validadores();
         matrizFormateada = convertir( dna );
-
-        if (isMutant( matrizFormateada )) {
-            response = new ResponseEntity( HttpStatus.OK );
+        if (validadores.validarMatriz( dna )) {
+            if (isMutant( matrizFormateada )) {
+                response = new ResponseEntity( HttpStatus.OK );
+            } else {
+                response = new ResponseEntity( HttpStatus.FORBIDDEN );
+            }
         } else {
-            response = new ResponseEntity( HttpStatus.FORBIDDEN );
+            response = new ResponseEntity( HttpStatus.BAD_REQUEST );
         }
-
         return response;
     }
 
@@ -46,23 +49,19 @@ public class Validadores {
         int coincidencia;
         boolean respuesta;
         Validadores validadores = new Validadores();
-        if (validadores.validarMatriz( dna )) {
-            coincidencia = validadores.init( dna );
-            LOG.info( "Cantidad de coincidencias encontradas: " + coincidencia );
-            if (coincidencia < 2) {
-                respuesta = false;
-            } else {
-                respuesta = true;
-            }
-        } else {
-            throw new MutanteException( "[ERROR DEFINICION MATRIZ]", "La Matriz ingresada es incorrecta" );
-        }
 
+        coincidencia = validadores.init( dna );
+        LOG.info( "Cantidad de coincidencias encontradas: " + coincidencia );
+        if (coincidencia < 2) {
+            respuesta = false;
+        } else {
+            respuesta = true;
+        }
         return respuesta;
     }
 
     /**
-     * Convertimos siempre el array que se ingresa por parametros a Mayuscula, en caso que se ingrese minusculas se formatea,
+     * Se convierte el array que se ingresa por parametros a Mayuscula, en caso que se ingrese minusculas se formatea,
      * caso contrario seguira igual
      *
      * @param args
@@ -80,6 +79,12 @@ public class Validadores {
         return matrizFormateada;
     }
 
+    /**
+     * Inicio del proceso en donde retornara la cantidad de coincidencias encontradas
+     *
+     * @param dna
+     * @return
+     */
     private int init(String[] dna) {
         LOG.info( "[INICIO] - Comienza el proceso de seleccion de mutantes" );
         int coincidencias = 0;
@@ -125,7 +130,7 @@ public class Validadores {
     }
 
     /**
-     * Recorriendo la diagonal principal arriba hacia abajo para controlar si hay coincidencias
+     * Recorre la diagonal principal de arriba hacia abajo para saber si hay coincidencias
      *
      * @param dnaA
      * @return boolean
@@ -146,7 +151,7 @@ public class Validadores {
     }
 
     /**
-     * Recorrido le la diagonal Superior
+     * Recorre la diagonal Superior
      *
      * @param dna
      * @return boolean
@@ -183,7 +188,7 @@ public class Validadores {
     }
 
     /**
-     * recorrido de la diagonal inferior
+     * Recorre la diagonal inferior
      *
      * @param dna
      * @return boolean
@@ -220,7 +225,7 @@ public class Validadores {
     }
 
     /**
-     * Se recorre la matriz Horizontalmente tratando de encontrar los requisitos de los mutantes
+     * Recorre la matriz Horizontalmente tratando de encontrar los requisitos de los mutantes
      *
      * @param dna
      * @return boolean
@@ -347,9 +352,10 @@ public class Validadores {
     }
 
     /**
-     * Proceso que valida que la matriz ingresada sea cuadrada si es asi verifica que solamente
+     * Se valida que la matriz ingresada sea cuadrada si es asi verifica que solamente
      * contenga las letras "A,T,C,G", caso contrario se indica al usuario el tipo
-     * de matriz que informa y si contiene alguna letra que no es la de la lista lo informa
+     * de matriz que informa y si contiene alguna letra que no es la de la lista lo informa mediante
+     * un error 400 (BAD_REQUEST) y el mensaje "La Matriz no es cuadrada o contiene caracteres invalidos"
      *
      * @param arg
      * @return boolean
@@ -362,7 +368,7 @@ public class Validadores {
             for (int j = 0; j < tamanioElementoMatriz; j++) {
                 if (tamanioElementoMatriz != tamanioMatriz) {
                     LOG.error( "La matriz no es cuadrada, la misma es de: " + tamanioMatriz + " x " + tamanioElementoMatriz + "." );
-                    throw new MutanteException( "Error Formato Matriz. La matriz no es cuadrada, la misma es de: " + tamanioMatriz + " x " + tamanioElementoMatriz + ".", null );
+                    return false;
                 }
                 Pattern pat = Pattern.compile( "[ATCG]+" );
                 Matcher mat = pat.matcher( String.valueOf( arg[i].charAt( j ) ) );
@@ -371,8 +377,7 @@ public class Validadores {
                 } else {
                     LOG.error( "Contiene caracteres Invalidos: " + String.valueOf( arg[i].charAt( j ) ) + ", letras esperadas: " +
                             "A,T,C,G" );
-                    throw new MutanteException( "Contiene caracteres Invalidos: " + String.valueOf( arg[i].charAt( j ) ) + " letras esperadas: " +
-                            "A,T,C,G", null );
+                    return false;
                 }
             }
         }

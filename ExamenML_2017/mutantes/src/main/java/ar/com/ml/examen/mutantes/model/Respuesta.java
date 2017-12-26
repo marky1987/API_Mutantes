@@ -1,12 +1,17 @@
 package ar.com.ml.examen.mutantes.model;
 
+/**
+ * Se Mapea la respuesta de la API
+ * en donde devolvera un String de la misma y se formateara a JSON desde el controlador
+ */
 public class Respuesta {
 
     private Long contadorMutantes;
     private Long contadorNoMutantes;
     private Double ratio;
 
-    public Respuesta() {}
+    public Respuesta() {
+    }
 
     public Respuesta(Long contadorMutantes, Long contadorNoMutantes, Double ratio) {
         this.contadorMutantes = contadorMutantes;
@@ -42,7 +47,7 @@ public class Respuesta {
     public String toString() {
         return '{' + "\"ADN\":{" +
                 "\"count_mutant_dna\":" + contadorMutantes +
-                ", \"count_human_dna\":" + contadorNoMutantes  +
+                ", \"count_human_dna\":" + contadorNoMutantes +
                 ", \"ratio\":" + ratio +
                 '}' +
                 '}';
